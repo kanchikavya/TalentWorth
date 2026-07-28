@@ -41,8 +41,8 @@ export const SkillTreePage: React.FC = () => {
         <MarketDataBadge isDemo={true} updatedTime="Updated 2 hours ago" />
       </div>
 
-      {/* Role Search Bar */}
-      <div className="glass-panel p-4 rounded-xl border-slate-800 space-y-1">
+      {/* Role Search Bar - Explicit High Stacking Context (z-50) */}
+      <div className="relative z-50 glass-panel p-4 rounded-xl border-slate-800 space-y-1">
         <label className="text-xs font-bold text-slate-300">Search Target Job Role:</label>
         <RoleSearchSelect
           value={role}
@@ -52,7 +52,7 @@ export const SkillTreePage: React.FC = () => {
       </div>
 
       {treeData && (
-        <div className="space-y-6">
+        <div className="relative z-10 space-y-6">
           
           {/* Top Recommendation Banner */}
           <div className="glass-panel p-6 rounded-2xl border-cyan-500/30 bg-gradient-to-r from-slate-900/90 via-cyan-950/30 to-slate-900/90 flex flex-col md:flex-row items-center justify-between gap-4">

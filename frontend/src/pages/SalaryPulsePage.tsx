@@ -5,11 +5,11 @@ import { api } from '../services/api';
 import { MarketDataBadge } from '../components/MarketDataBadge';
 import { RoleSearchSelect } from '../components/RoleSearchSelect';
 import { LocationSearchSelect } from '../components/LocationSearchSelect';
-import { formatSalaryByLocation, getCurrencyByLocation } from '../utils/currency';
+import { useLocationContext } from '../context/LocationContext';
 
 export const SalaryPulsePage: React.FC = () => {
+  const { globalLocation, setGlobalLocation, currencyConfig, formatSalary } = useLocationContext();
   const [role, setRole] = useState("Software Engineer");
-  const [location, setLocation] = useState("Hyderabad (India)");
   const [pulseData, setPulseData] = useState<any>(null);
 
   useEffect(() => {
@@ -25,11 +25,9 @@ export const SalaryPulsePage: React.FC = () => {
     }
   };
 
-  const currencyInfo = getCurrencyByLocation(location);
-
   const chartData = pulseData?.monthly_trend?.map((item: any) => ({
     month: item.month,
-    Salary: Math.round((item.avg_salary * currencyInfo.rate) / (currencyInfo.code === 'INR' ? 100000 : 1)),
+    Salary: Math.round((item.avg_salary * currencyConfig.rate) / (currencyConfig.code === 'INR' ? 100000 : 1)),
     Postings: item.postings
   })) || [
     { month: 'Jan', Salary: 10, Postings: 12000 },
@@ -74,8 +72,8 @@ export const SalaryPulsePage: React.FC = () => {
         <div className="space-y-1 relative z-50">
           <label className="text-xs font-bold text-slate-300">Select Currency / Location:</label>
           <LocationSearchSelect
-            value={location}
-            onChange={(loc) => setLocation(loc)}
+            value={globalLocation}
+            onChange={(loc) => setGlobalLocation(loc)}
           />
         </div>
       </div>
@@ -90,7 +88,7 @@ export const SalaryPulsePage: React.FC = () => {
               <Globe className="w-4 h-4 text-cyan-400" />
             </div>
             <div className="text-2xl font-black text-white text-gradient-cyan">
-              {formatSalaryByLocation(pulseData.avg_salary || 85000, location)}
+              {formatSalary(pulseData.avg_salary || 85000)}
             </div>
             <p className="text-[11px] text-emerald-400 flex items-center gap-1 font-bold">
               +{pulseData.trend_30d || 3.8}% 30-Day Trend
@@ -103,7 +101,7 @@ export const SalaryPulsePage: React.FC = () => {
               <Briefcase className="w-4 h-4 text-purple-400" />
             </div>
             <div className="text-lg font-bold text-slate-200 truncate">
-              {formatSalaryByLocation(pulseData.min_salary || 65000, location)} – {formatSalaryByLocation(pulseData.max_salary || 120000, location)}
+              {formatSalary(pulseData.min_salary || 65000)} – {formatSalary(pulseData.max_salary || 120000)}
             </div>
             <p className="text-[11px] text-purple-300 font-bold">
               +{pulseData.trend_1y || 12.4}% 1-Year Market Growth
@@ -148,7 +146,7 @@ export const SalaryPulsePage: React.FC = () => {
               Real-Time Compensation & Hiring Demand Trend ({role})
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Historical 6-month trajectory formatted in {currencyInfo.code} ({currencyInfo.code === 'INR' ? 'LPA - Lakhs per Annum' : currencyInfo.code}).
+              Historical 6-month trajectory formatted in {currencyConfig.code} ({currencyConfig.code === 'INR' ? 'LPA - Lakhs per Annum' : currencyConfig.code}).
             </p>
           </div>
 

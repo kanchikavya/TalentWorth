@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Clock } from 'lucide-react';
 import { api } from '../services/api';
 import { MarketDataBadge } from '../components/MarketDataBadge';
+import { useLocationContext } from '../context/LocationContext';
 
 export const MarketShockDetectorPage: React.FC = () => {
+  const { formatSalary } = useLocationContext();
   const [alerts, setAlerts] = useState<any[]>([]);
 
   useEffect(() => {
@@ -44,22 +46,27 @@ export const MarketShockDetectorPage: React.FC = () => {
         {alerts.map((al) => (
           <div 
             key={al.id}
-            className="glass-panel p-6 rounded-2xl border-slate-800 glass-card-hover flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+            className="glass-panel p-6 rounded-2xl border-slate-800 hover:border-amber-500/40 transition flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-900/90"
           >
-            <div className="space-y-1 max-w-3xl">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-white">{al.title}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {al.timestamp}
+            <div className="space-y-1.5 max-w-3xl">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold text-white text-base">{al.title}</span>
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 flex items-center gap-1 border border-slate-700">
+                  <Clock className="w-3 h-3 text-cyan-400" /> {al.timestamp}
+                </span>
+                <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
+                  al.severity === 'high' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                }`}>
+                  {al.type || "Market Pulse"}
                 </span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">{al.detail}</p>
             </div>
 
             <div className="text-right shrink-0">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase">Estimated Salary Impact</span>
-              <div className={`text-xl font-black ${al.salary_impact.startsWith("+") ? "text-emerald-400" : "text-red-400"}`}>
-                {al.salary_impact}
+              <span className="text-[10px] text-slate-400 font-semibold uppercase block">Compensation Delta</span>
+              <div className="text-lg font-black text-emerald-400 font-mono">
+                {al.salary_delta ? `+${formatSalary(al.salary_delta)}` : al.impact || "High Momentum"}
               </div>
             </div>
           </div>

@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { MessageSquareCode, Copy, Check } from 'lucide-react';
+import { MessageSquareCode, Copy, Check, Zap, ArrowRight } from 'lucide-react';
 import { api } from '../services/api';
 import { MarketDataBadge } from '../components/MarketDataBadge';
+import { RoleSearchSelect } from '../components/RoleSearchSelect';
+import { SkillSearchSelect } from '../components/SkillSearchSelect';
+import { useLocationContext } from '../context/LocationContext';
 
 export const NegotiationAiPage: React.FC = () => {
+  const { globalLocation, formatSalary } = useLocationContext();
   const [offer, setOffer] = useState(75000);
   const [role, setRole] = useState("Software Engineer");
   const [exp, setExp] = useState(3.0);
-  const [skills] = useState(["Python", "React", "AWS"]);
+  const [skills, setSkills] = useState(["Python", "React", "AWS"]);
 
   const [res, setRes] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -23,7 +27,7 @@ export const NegotiationAiPage: React.FC = () => {
         years_experience: exp,
         skills: skills
       });
-      setRes(data);
+      setRes(data.negotiation || data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -61,132 +65,122 @@ export const NegotiationAiPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* Left: Input Offer Form */}
-        <div className="lg:col-span-4">
-          <form onSubmit={handleNegotiate} className="glass-panel p-6 rounded-2xl border-slate-800 space-y-4">
+        {/* Left Input Form */}
+        <div className="lg:col-span-5">
+          <form onSubmit={handleNegotiate} className="glass-panel p-6 rounded-2xl border-slate-800 space-y-5">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800 pb-3">
-              Offer Details
+              Offer & Role Context
             </h3>
 
-            <div className="space-y-1.5">
-              <label className="text-xs text-slate-400 font-medium">Received Job Offer ($/yr):</label>
-              <input
-                type="number"
-                step="1000"
-                value={offer}
-                onChange={(e) => setOffer(parseFloat(e.target.value) || 0)}
-                className="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2.5 outline-none focus:border-cyan-400 font-mono font-bold"
+            {/* Role Search */}
+            <div className="space-y-1.5 relative z-50">
+              <label className="text-xs text-slate-400 font-medium">Target Job Role (Search 40+ Jobs):</label>
+              <RoleSearchSelect
+                value={role}
+                onChange={(r) => setRole(r)}
+                placeholder="Select job role..."
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs text-slate-400 font-medium">Role:</label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2.5 outline-none"
-              >
-                <option value="Software Engineer">Software Engineer</option>
-                <option value="Frontend Developer">Frontend Developer</option>
-                <option value="Backend Developer">Backend Developer</option>
-                <option value="Full Stack Developer">Full Stack Developer</option>
-                <option value="AI Engineer">AI Engineer</option>
-              </select>
+              <label className="text-xs text-slate-400 font-medium">Current Offered Salary (USD equivalent):</label>
+              <input
+                type="number"
+                step="5000"
+                value={offer}
+                onChange={(e) => setOffer(parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2.5 focus:border-cyan-400 outline-none"
+              />
+              <span className="text-[10px] text-cyan-400 block">
+                Formats as: {formatSalary(offer)} in {globalLocation}
+              </span>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs text-slate-400 font-medium">Years of Experience:</label>
+              <div className="flex justify-between text-xs text-slate-400 font-medium">
+                <span>Years of Experience:</span>
+                <span className="text-cyan-400 font-bold">{exp} Yrs</span>
+              </div>
               <input
-                type="number"
+                type="range"
+                min="0"
+                max="15"
                 step="0.5"
                 value={exp}
-                onChange={(e) => setExp(parseFloat(e.target.value) || 0)}
-                className="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2.5 outline-none"
+                onChange={(e) => setExp(parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 bg-slate-800 rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs text-slate-400 font-medium">Core Skills Portfolio:</label>
+              <SkillSearchSelect
+                selectedSkills={skills}
+                onChange={(s) => setSkills(s)}
+                placeholder="Select core skills..."
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl font-bold text-xs text-slate-950 bg-gradient-to-r from-emerald-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 transition shadow-lg shadow-emerald-500/20"
+              className="w-full py-3.5 rounded-xl font-extrabold text-xs text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
             >
-              {loading ? "Generating Strategy..." : "Generate AI Negotiation Script"}
+              {loading ? "Generating Strategy..." : <><Zap className="w-4 h-4" /> Generate Counter-Offer Strategy</>}
             </button>
           </form>
         </div>
 
-        {/* Right: AI Output Strategy Panel */}
-        <div className="lg:col-span-8 space-y-6">
-          {res && (
-            <>
-              {/* Target Range Box */}
-              <div className="glass-panel p-6 rounded-2xl border-emerald-500/30 bg-slate-900/90 space-y-4">
-                <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-4">
-                  <div>
-                    <span className="text-xs text-slate-400 font-medium">Recommended Counter Target</span>
-                    <div className="text-3xl font-black text-emerald-400">
-                      ${res.recommended_target?.toLocaleString()} <span className="text-xs text-slate-400 font-normal">/ year</span>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="text-xs text-slate-400 font-medium">Suggested Negotiation Range</span>
-                    <div className="text-base font-bold text-slate-200">{res.suggested_negotiation_range}</div>
+        {/* Right Output Strategy */}
+        <div className="lg:col-span-7 space-y-6">
+          {!res ? (
+            <div className="glass-panel p-12 rounded-2xl border-slate-800 text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20">
+                <MessageSquareCode className="w-8 h-8 animate-pulse" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Negotiation Assistant Ready</h3>
+              <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+                Enter your job role and offered salary on the left, then click <strong>"Generate Counter-Offer Strategy"</strong>.
+              </p>
+            </div>
+          ) : (
+            <div className="glass-panel p-6 rounded-2xl border-emerald-500/30 bg-slate-900/90 space-y-6 shadow-2xl">
+              
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                  <span className="text-xs text-slate-400 font-medium">Recommended Counter Target</span>
+                  <div className="text-3xl font-black text-emerald-400">
+                    {formatSalary(res.recommended_target || offer * 1.18)}
                   </div>
                 </div>
 
-                {/* Evidence Points */}
-                <div className="space-y-2 text-xs">
-                  <span className="font-bold text-slate-200">Supporting Evidence & Positioning:</span>
-                  <ul className="space-y-1.5">
-                    {res.evidence_points?.map((pt: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-slate-300">
-                        <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                        <span>{pt}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="text-right">
+                  <span className="text-xs text-slate-400 font-medium">Current Offer vs Target</span>
+                  <div className="text-sm font-bold text-slate-200">
+                    {formatSalary(offer)} <ArrowRight className="inline w-3 h-3 text-emerald-400" /> {formatSalary(res.recommended_target || offer * 1.18)}
+                  </div>
                 </div>
               </div>
 
-              {/* Copyable Email Script Box */}
-              <div className="glass-panel p-6 rounded-2xl border-slate-800 space-y-3">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    Professional Negotiation Email Script
-                  </h3>
+              {/* Counter-Offer Email Script */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-white uppercase tracking-wider">Customizable Recruiter Email Script:</label>
                   <button
                     onClick={copyEmail}
-                    className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition"
+                    className="px-3 py-1 rounded-lg text-xs font-bold text-cyan-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1.5"
                   >
                     {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    {copied ? "Copied!" : "Copy Email"}
+                    {copied ? "Copied!" : "Copy Script"}
                   </button>
                 </div>
 
-                <pre className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 whitespace-pre-wrap font-sans leading-relaxed">
-                  {res.email_script}
-                </pre>
-              </div>
-
-              {/* Recruiter Response Playbook */}
-              <div className="glass-panel p-6 rounded-2xl border-slate-800 space-y-4">
-                <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                  Recruiter Counter-Argument Playbook
-                </h3>
-
-                <div className="space-y-3">
-                  {res.recruiter_response_playbook?.map((pb: any, idx: number) => (
-                    <div key={idx} className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2 text-xs">
-                      <div className="font-bold text-amber-400">Recruiter Objection: "{pb.recruiter_statement}"</div>
-                      <div className="text-slate-300 leading-relaxed pl-3 border-l-2 border-cyan-400">
-                        <strong>Suggested Response:</strong> {pb.response}
-                      </div>
-                    </div>
-                  ))}
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
+                  {res.email_script || `Dear Hiring Team,\n\nThank you for extending the offer for the ${role} position. Based on my ${exp} years of specialized experience in ${skills.join(", ")}, market compensation benchmarks for ${globalLocation} indicate a target salary range of ${formatSalary(res.recommended_target || offer * 1.18)}. I am extremely excited about joining and would love to align on ${formatSalary(res.recommended_target || offer * 1.18)}.\n\nBest regards,\n[Your Name]`}
                 </div>
               </div>
-            </>
+
+            </div>
           )}
         </div>
 
