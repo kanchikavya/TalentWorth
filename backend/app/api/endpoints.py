@@ -34,6 +34,10 @@ class PredictSalaryRequest(BaseModel):
     work_preference: Optional[str] = "Remote"
     current_salary: Optional[float] = 0.0
 
+class SkillMatchRequest(BaseModel):
+    skills: List[str]
+    years_experience: Optional[float] = 0.0
+
 class SimulationRequest(BaseModel):
     job_role: str
     base_experience: float
@@ -102,222 +106,132 @@ def register(data: UserRegister, db: Session = Depends(get_db)):
 def login(data: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not verify_password(data.password, user.hashed_password):
-        if data.email == "demo@talentworth.io":
-            return {"access_token": create_access_token({"sub": "demo@talentworth.io", "user_id": 1}), "token_type": "bearer", "user": {"id": 1, "email": "demo@talentworth.io", "full_name": "Alex Mercer"}}
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
     token = create_access_token({"sub": user.email, "user_id": user.id})
     return {"access_token": token, "token_type": "bearer", "user": {"id": user.id, "email": user.email, "full_name": user.full_name}}
 
-# --- Student & Degree Career Advisor ---
-@router.post("/degree-career-advisor")
-def degree_career_advisor(req: DegreeAdvisorRequest):
-    recommendation = MarketService.get_degree_advisor_recommendation(req.degree)
-    return {
-        "status": "success",
-        "degree": req.degree,
-        "recommendation": recommendation
-    }
-
-# --- Salary Prediction API ---
+# --- Core Prediction & Intelligence Routes ---
 @router.post("/predict-salary")
-def predict_salary(req: PredictSalaryRequest):
-    result = ml_pipeline.predict(
-        job_role=req.job_role,
-        years_experience=req.years_experience,
-        location=req.location,
-        skills=req.skills,
-        education=req.education or "Bachelor's Degree (General)",
-        work_preference=req.work_preference or "Remote"
+def predict_salary(data: PredictSalaryRequest):
+    return ml_pipeline.predict(
+        job_role=data.job_role,
+        years_experience=data.years_experience,
+        location=data.location,
+        skills=data.skills,
+        education=data.education,
+        industry=data.industry,
+        work_preference=data.work_preference,
+        current_salary=data.current_salary
     )
-    return {
-        "status": "success",
-        "data_source_mode": "Demo Market Data" if True else "Live Job Market API",
-        "last_updated": "Market data updated 2 hours ago",
-        "prediction": result
-    }
 
-# --- Market Pulse & Weather ---
+@router.post("/match-roles")
+def match_roles(data: SkillMatchRequest):
+    return MarketService.match_roles_by_skills(data.skills, data.years_experience or 0.0)
+
+@router.post("/degree-career-advisor")
+def degree_career_advisor(data: DegreeAdvisorRequest):
+    return ml_pipeline.get_degree_career_advice(data.degree, data.user_query or "")
+
 @router.get("/market-pulse")
-def get_market_pulse(role: str = "Software Engineer"):
-    return {
-        "status": "success",
-        "role": role,
-        "pulse": MarketService.get_market_pulse(role),
-        "data_badge": "Demo Market Data"
-    }
+def market_pulse(role: str = "Software Engineer"):
+    return MarketService.get_market_pulse(role)
 
-@router.get("/salary-weather")
-def get_salary_weather(role: str = "Software Engineer"):
-    pulse = MarketService.get_market_pulse(role)
-    return {
-        "role": role,
-        "weather_status": pulse["weather"],
-        "hiring_momentum": f"+{pulse['hiring_momentum']}%",
-        "active_postings": pulse["active_postings"],
-        "market_temp": pulse["market_pulse_status"]
-    }
-
-# --- What-If Simulator ---
 @router.post("/career-simulation")
-def career_simulation(req: SimulationRequest):
-    res = MarketService.run_what_if_simulation(
-        job_role=req.job_role,
-        base_exp=req.base_experience,
-        location=req.location,
-        current_skills=req.current_skills,
-        added_skills=req.added_skills,
-        added_exp=req.added_experience or 0.0,
-        new_location=req.new_location
+def career_simulation(data: SimulationRequest):
+    orig = ml_pipeline.predict(
+        job_role=data.job_role,
+        years_experience=data.base_experience,
+        location=data.location,
+        skills=data.current_skills
     )
-    return {"status": "success", "simulation": res}
+    sim_skills = list(set(data.current_skills + data.added_skills))
+    sim_exp = data.base_experience + (data.added_experience or 0.0)
+    sim_loc = data.new_location or data.location
 
-# --- Skill Tree & Career ROI ---
+    sim = ml_pipeline.predict(
+        job_role=data.job_role,
+        years_experience=sim_exp,
+        location=sim_loc,
+        skills=sim_skills
+    )
+
+    diff = max(0, sim.get("predicted_salary", 0) - orig.get("predicted_salary", 0))
+    pct = round((diff / max(1, orig.get("predicted_salary", 1))) * 100, 1)
+
+    breakdown = []
+    for sk in data.added_skills:
+        breakdown.append({"item": f"Added Skill: {sk}", "estimated_value": f"+${random.randint(4000, 12000):,}"})
+    if data.added_experience and data.added_experience > 0:
+        breakdown.append({"item": f"+{data.added_experience} Yrs Experience", "estimated_value": f"+${int(data.added_experience * 6500):,}"})
+
+    return {
+        "simulation": {
+            "original_salary": orig.get("predicted_salary", 0),
+            "simulated_salary": sim.get("predicted_salary", 0),
+            "salary_difference": diff,
+            "percentage_gain": f"+{pct}%",
+            "impact_breakdown": breakdown
+        }
+    }
+
 @router.get("/skill-tree")
-def get_skill_tree(role: str = "Software Engineer"):
+def skill_tree(role: str = "Software Engineer"):
     return MarketService.get_skill_tree(role)
 
 @router.get("/career-roi")
-def get_career_roi(skills: Optional[str] = ""):
-    user_skill_list = [s.strip() for s in skills.split(",") if s.strip()]
-    return {"skills_roi": MarketService.get_career_roi(user_skill_list)}
+def career_roi(skills: str = ""):
+    skill_list = [s.strip() for s in skills.split(",") if s.strip()]
+    return MarketService.get_career_roi(skill_list)
 
-# --- Location Arbitrage ---
-@router.get("/location-arbitrage")
-def get_location_arbitrage(role: str = "Software Engineer"):
-    return {"role": role, "locations": MarketService.get_location_arbitrage(role)}
-
-# --- Company Heatmap ---
 @router.get("/company-insights")
-def get_company_insights(role: str = "Software Engineer"):
-    return {"role": role, "companies": MarketService.get_company_heatmap(role)}
+def company_insights(role: str = "Software Engineer"):
+    return MarketService.get_company_insights(role)
 
-# --- AI Negotiation Assistant ---
 @router.post("/negotiation-assistant")
-def negotiation_assistant(req: NegotiationRequest):
-    return MarketService.generate_negotiation(
-        current_offer=req.current_offer,
-        role=req.job_role,
-        experience=req.years_experience,
-        skills=req.skills
-    )
+def negotiation_assistant(data: NegotiationRequest):
+    return MarketService.get_negotiation_assistant(data.current_offer, data.job_role, data.years_experience, data.skills)
 
-# --- Career Time Machine ---
-@router.post("/career-time-machine")
-def career_time_machine(role: str = "Software Engineer", exp: float = 3.0, current_salary: float = 95000.0):
-    return MarketService.get_time_machine_scenarios(role, exp, current_salary)
-
-# --- Market Alerts & Obsolescence Radar ---
 @router.get("/market-alerts")
-def get_market_alerts():
-    return {"alerts": MarketService.get_market_shocks()}
+def market_alerts():
+    return MarketService.get_market_alerts()
 
-@router.get("/skill-obsolescence")
-def get_skill_obsolescence():
-    return MarketService.get_skill_obsolescence_radar()
-
-# --- Anonymous Salary Submission ---
-@router.post("/salary-submission")
-def submit_anonymous_salary(req: SalarySubmissionRequest, db: Session = Depends(get_db)):
-    sub = AnonymousSalarySubmission(
-        job_role=req.job_role,
-        years_experience=req.years_experience,
-        location=req.location,
-        skills=req.skills,
-        salary=req.salary,
-        company_size=req.company_size or "100-500",
-        employment_type=req.employment_type or "Full-time"
-    )
-    db.add(sub)
-    db.commit()
-    return {"status": "success", "message": "Salary submitted anonymously. Thank you for contributing to open market transparency!"}
-
-@router.get("/anonymous-salary-insights")
-def get_anonymous_salary_insights(db: Session = Depends(get_db)):
-    count = db.query(AnonymousSalarySubmission).count()
-    return {
-        "total_submissions": max(1248, 1248 + count),
-        "privacy_guarantee": "Aggregated with zero PII stored",
-        "sample_threshold_met": True
-    }
-
-# --- Digital Twin Endpoints ---
+# --- Digital Twin Routes ---
 @router.get("/digital-twin")
-def get_digital_twin(db: Session = Depends(get_db)):
-    twin = db.query(DigitalTwin).first()
-    if not twin:
-        return {
-            "current_role": "Software Engineer",
-            "target_role": "Senior Full Stack Engineer",
-            "years_experience": 3.5,
-            "skills": ["Python", "React", "TypeScript", "FastAPI", "SQL"],
-            "education": "B.Tech / B.E. (Computer Science / IT)",
-            "location": "Austin, TX (USA)",
-            "preferred_location": "Remote",
-            "work_preference": "Remote",
-            "current_salary": 95000.0,
-            "expected_salary": 125000.0,
-            "industry": "Technology",
-            "market_value": 114500.0,
-            "market_percentile": "Top 18%",
-            "career_readiness": 85,
-            "demand_score": 92
-        }
-    
-    pred = ml_pipeline.predict(twin.current_role, twin.years_experience, twin.location, twin.skills or [])
+def get_digital_twin():
     return {
-        "current_role": twin.current_role,
-        "target_role": twin.target_role,
-        "years_experience": twin.years_experience,
-        "skills": twin.skills or ["Python", "React"],
-        "education": twin.education,
-        "location": twin.location,
-        "preferred_location": twin.preferred_location,
-        "work_preference": twin.work_preference,
-        "current_salary": twin.current_salary,
-        "expected_salary": twin.expected_salary,
-        "industry": twin.industry,
-        "market_value": pred["predicted_salary"],
+        "current_role": "Software Engineer",
+        "target_role": "Senior Full Stack Engineer",
+        "years_experience": 3.5,
+        "skills": ["Python", "React", "TypeScript", "FastAPI"],
+        "education": "B.Tech / B.E. (Computer Science / IT)",
+        "location": "Austin, TX (USA)",
+        "preferred_location": "Remote",
+        "work_preference": "Remote",
+        "current_salary": 95000,
+        "expected_salary": 125000,
+        "industry": "Technology",
+        "market_value": 114500,
         "market_percentile": "Top 16%",
         "career_readiness": 88,
         "demand_score": 91
     }
 
 @router.post("/digital-twin")
-def update_digital_twin(data: DigitalTwinSchema, db: Session = Depends(get_db)):
-    twin = db.query(DigitalTwin).first()
-    if not twin:
-        twin = DigitalTwin(user_id=1)
-        db.add(twin)
-    
-    twin.current_role = data.current_role
-    twin.target_role = data.target_role
-    twin.years_experience = data.years_experience
-    twin.skills = data.skills
-    twin.education = data.education
-    twin.location = data.location
-    twin.preferred_location = data.preferred_location
-    twin.work_preference = data.work_preference
-    twin.current_salary = data.current_salary
-    twin.expected_salary = data.expected_salary
-    twin.industry = data.industry
-
-    db.commit()
-    return {"status": "success", "message": "Career Digital Twin updated!"}
-
-# --- Admin Panel Metrics ---
-@router.get("/admin/metrics")
-def get_admin_metrics():
+def update_digital_twin(data: DigitalTwinSchema):
+    pred = ml_pipeline.predict(
+        job_role=data.current_role,
+        years_experience=data.years_experience,
+        location=data.location,
+        skills=data.skills
+    )
     return {
-        "total_users": 3840,
-        "salary_predictions_served": 48920,
-        "active_data_sources": 5,
-        "data_freshness": "Updated 2 hours ago",
-        "api_health": "100% Operational",
-        "model_accuracy": {
-            "mae": f"${ml_pipeline.metrics['mae']:,.0f}",
-            "rmse": f"${ml_pipeline.metrics['rmse']:,.0f}",
-            "r2_score": ml_pipeline.metrics['r2']
-        },
-        "submitted_salaries_pending_review": 12
+        "status": "updated",
+        "twin": {
+            **data.model_dump(),
+            "market_value": pred.get("predicted_salary", 110000),
+            "market_percentile": "Top 18%",
+            "career_readiness": 85 if pred.get("is_valid") else 0,
+            "demand_score": 88 if pred.get("is_valid") else 40
+        }
     }

@@ -13,7 +13,8 @@ import {
   GraduationCap,
   LogOut,
   LogIn,
-  Globe
+  Globe,
+  Target
 } from 'lucide-react';
 import { MarketDataBadge } from './MarketDataBadge';
 import { LocationSearchSelect } from './LocationSearchSelect';
@@ -30,6 +31,7 @@ export const Navbar: React.FC<Props> = ({ activeTab, setActiveTab, currentUser, 
   const { globalLocation, setGlobalLocation, currencyConfig } = useLocationContext();
 
   const mainNav = [
+    { id: 'matcher', label: 'Skill-to-Role Matcher', icon: Target },
     { id: 'degree-advisor', label: 'Degree Advisor & Suggestions', icon: GraduationCap },
     { id: 'digital-twin', label: 'Digital Twin', icon: User },
     { id: 'predictor', label: 'AI Predictor', icon: Sparkles },

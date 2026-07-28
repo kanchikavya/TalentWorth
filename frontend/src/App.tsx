@@ -17,6 +17,7 @@ import { NegotiationAiPage } from './pages/NegotiationAiPage';
 import { MarketShockDetectorPage } from './pages/MarketShockDetectorPage';
 import { SkillObsolescencePage } from './pages/SkillObsolescencePage';
 import { DegreeAdvisorPage } from './pages/DegreeAdvisorPage';
+import { SkillRoleMatcherPage } from './pages/SkillRoleMatcherPage';
 import { LoginPage } from './pages/LoginPage';
 
 export function App() {
@@ -56,6 +57,8 @@ export function App() {
         return <LandingPage onNavigate={setActiveTab} />;
       case 'login':
         return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+      case 'matcher':
+        return <SkillRoleMatcherPage onNavigate={setActiveTab} />;
       case 'degree-advisor':
         return <DegreeAdvisorPage />;
       case 'digital-twin':

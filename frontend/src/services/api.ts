@@ -70,6 +70,7 @@ export const api = {
 
   // Predictions & Intelligence
   predictSalary: (data: PredictPayload) => request("/predict-salary", { method: "POST", body: JSON.stringify(data) }),
+  matchRolesBySkills: (skills: string[], exp: number = 0) => request("/match-roles", { method: "POST", body: JSON.stringify({ skills, years_experience: exp }) }),
   getDegreeAdvisor: (degree: string) => request("/degree-career-advisor", { method: "POST", body: JSON.stringify({ degree }) }),
   getMarketPulse: (role: string = "Software Engineer") => request(`/market-pulse?role=${encodeURIComponent(role)}`),
   getSalaryWeather: (role: string = "Software Engineer") => request(`/salary-weather?role=${encodeURIComponent(role)}`),
