@@ -98,105 +98,102 @@ LOCATION_MULTIPLIERS = {
     "Chicago, IL (USA)": 1.05,
     "Denver, CO (USA)": 1.08,
     "Los Angeles, CA (USA)": 1.22,
-    "Toronto (Canada)": 0.88,
-    "Vancouver (Canada)": 0.85,
-    "Montreal (Canada)": 0.80,
-    
+    "Toronto (Canada)": 0.95,
+    "Vancouver (Canada)": 0.92,
+    "Montreal (Canada)": 0.88,
+
     # Europe
-    "London (UK)": 0.95,
-    "Zurich (Switzerland)": 1.30,
-    "Amsterdam (Netherlands)": 0.90,
-    "Berlin (Germany)": 0.85,
-    "Munich (Germany)": 0.90,
-    "Paris (France)": 0.82,
-    "Dublin (Ireland)": 0.95,
-    "Stockholm (Sweden)": 0.80,
-    "Madrid (Spain)": 0.65,
-    "Warsaw (Poland)": 0.55,
-    
-    # Asia-Pacific & India
-    "Bangalore (India)": 0.18,
-    "Hyderabad (India)": 0.17,
-    "Mumbai (India)": 0.175,
-    "Delhi NCR (India)": 0.165,
-    "Tokyo (Japan)": 0.75,
-    "Singapore": 1.05,
-    "Sydney (Australia)": 0.98,
-    "Melbourne (Australia)": 0.92,
-    "Seoul (South Korea)": 0.78,
-    "Hong Kong": 1.02,
-    "Taipei (Taiwan)": 0.60,
+    "London (UK)": 1.12,
+    "Zurich (Switzerland)": 1.45,
+    "Amsterdam (Netherlands)": 1.05,
+    "Berlin (Germany)": 0.98,
+    "Munich (Germany)": 1.02,
+    "Paris (France)": 0.95,
+    "Dublin (Ireland)": 1.08,
+    "Stockholm (Sweden)": 0.96,
+    "Madrid (Spain)": 0.78,
+    "Warsaw (Poland)": 0.65,
+
+    # Asia-Pacific
+    "Bangalore (India)": 0.42,
+    "Hyderabad (India)": 0.40,
+    "Mumbai (India)": 0.44,
+    "Delhi NCR (India)": 0.42,
+    "Tokyo (Japan)": 0.92,
+    "Singapore": 1.20,
+    "Sydney (Australia)": 1.10,
+    "Melbourne (Australia)": 1.05,
+    "Seoul (South Korea)": 0.88,
+    "Hong Kong": 1.15,
+    "Taipei (Taiwan)": 0.75,
 
     # Middle East & Africa
-    "Dubai (UAE)": 1.00,
-    "Tel Aviv (Israel)": 1.12,
-    "Riyadh (Saudi Arabia)": 0.95,
-    "Cape Town (South Africa)": 0.40,
+    "Dubai (UAE)": 1.15,
+    "Tel Aviv (Israel)": 1.25,
+    "Riyadh (Saudi Arabia)": 1.05,
+    "Cape Town (South Africa)": 0.55,
 
     # Latin America
-    "Sao Paulo (Brazil)": 0.35,
-    "Mexico City (Mexico)": 0.38,
-    "Buenos Aires (Argentina)": 0.30,
+    "Sao Paulo (Brazil)": 0.50,
+    "Mexico City (Mexico)": 0.52,
+    "Buenos Aires (Argentina)": 0.45,
 
-    # Remote Options
+    # Remote
     "Remote (Global USD)": 1.00,
-    "Remote (US Rates)": 1.10,
-    "Remote (Europe Rates)": 0.85,
-    "Remote (Asia Rates)": 0.40,
+    "Remote (US Rates)": 1.20,
+    "Remote (Europe Rates)": 1.00,
+    "Remote (Asia Rates)": 0.60
 }
 
 SKILL_VALUATIONS = {
-    # Tech & Software
-    "AWS": 6500,
-    "Docker": 3500,
-    "Kubernetes": 5500,
-    "React": 4000,
-    "TypeScript": 3500,
-    "Python": 4500,
-    "FastAPI": 3500,
-    "Node.js": 3500,
-    "PyTorch": 9500,
-    "TensorFlow": 8500,
-    "Generative AI": 11000,
-    "System Design": 7500,
-    "SQL / PostgreSQL": 3500,
-    "Go": 6500,
-    "Rust": 7500,
-    "CSS": 1200,
-    "HTML/CSS": 1500,
+    # High-Demand AI/ML & Data
+    "Generative AI": 18000,
+    "PyTorch": 14000,
+    "TensorFlow": 12000,
+    "Python": 10000,
+    "SQL / PostgreSQL": 8000,
+    "PowerBI / Tableau": 7000,
+    "Excel Advanced (VBA/Macros)": 4000,
 
-    # Core Engineering & Hardware
-    "AutoCAD / SolidWorks": 4500,
-    "Revit & BIM Modeling": 5500,
-    "Embedded C / C++": 6000,
-    "Verilog / VHDL": 7500,
-    "MATLAB & Simulink": 4500,
-    "PLC & SCADA Industrial Automation": 5500,
-    "STAAD Pro / ETABS Structural Analysis": 5200,
-    "GIS & Mapping Software": 4000,
+    # IT & Software
+    "System Design": 15000,
+    "AWS": 12000,
+    "Kubernetes": 12000,
+    "Docker": 8000,
+    "React": 8000,
+    "TypeScript": 7000,
+    "Java": 9000,
+    "C++": 9500,
+    "FastAPI": 8000,
+    "Node.js": 7500,
+    "Go": 12000,
+    "Rust": 14000,
 
-    # Medical & Life Sciences
-    "Clinical Data Analysis (R/SAS)": 6500,
-    "Healthcare Informatics / EHR": 5500,
-    "Medical Image Processing (DICOM/AI)": 8500,
-    "Good Clinical Practice (GCP)": 4000,
-    "Pharmacovigilance": 4500,
+    # Core Engineering (ECE / Mech / Civil)
+    "Embedded C / C++": 11000,
+    "Microcontrollers (ARM/ESP32)": 9000,
+    "Verilog / VHDL": 14000,
+    "AutoCAD / SolidWorks": 8000,
+    "ANSYS Simulation": 10000,
+    "STAAD Pro / ETABS Structural Analysis": 9000,
+    "Revit & BIM Modeling": 9500,
+    "MATLAB & Simulink": 8500,
 
-    # Business, Finance & Analytics
-    "Financial Modeling & Valuation": 7500,
-    "PowerBI / Tableau": 4500,
-    "Google Analytics & SEO": 3500,
-    "Excel Advanced (VBA/Macros)": 3000,
-    "Agile / Scrum Master": 4500,
+    # Medical & Bio
+    "Healthcare Informatics / EHR": 12000,
+    "Clinical Data Analysis (R/SAS)": 11000,
+    "Medical Image Processing (DICOM/AI)": 15000,
+
+    # Business & Finance
+    "Financial Modeling & Valuation": 12000,
+    "Agile / Scrum Master": 6000,
+    "Google Analytics & SEO": 5000,
 }
 
 EDUCATION_MULTIPLIERS = {
     "B.Tech / B.E. (Computer Science / IT)": 1.05,
-    "B.Tech / B.E. (Electronics & Comm - ECE)": 1.02,
-    "B.Tech / B.E. (Electrical - EEE)": 1.00,
-    "B.Tech / B.E. (Mechanical - MECH)": 0.98,
-    "B.Tech / B.E. (Civil)": 0.96,
-    "B.Tech / B.E. (Chemical / Biotech)": 1.00,
+    "B.Tech / B.E. (ECE / EEE)": 1.00,
+    "B.Tech / B.E. (Mechanical / Civil)": 0.98,
     "B.Arch (Architecture)": 1.02,
     "BCA (Computer Applications)": 0.94,
     "MCA (Master of Computer Applications)": 1.08,
@@ -224,14 +221,16 @@ class SalaryMLPipeline:
         location: str,
         skills: List[str],
         education: str = "Bachelor's Degree (General)",
-        work_preference: str = "Remote"
+        work_preference: str = "Remote",
+        industry: str = "Technology",
+        current_salary: float = 0.0,
+        **kwargs
     ) -> Dict[str, Any]:
         
         # --- STRICT SKILL RELEVANCE VERIFICATION ---
         core_skills_required = ROLE_CORE_SKILLS.get(job_role, [])
         
         if skills and len(skills) > 0 and len(core_skills_required) > 0:
-            # Check if at least ONE entered skill is in core_skills_required or matches fuzzy string
             has_matching_core = False
             for user_sk in skills:
                 for req_sk in core_skills_required:
@@ -258,86 +257,89 @@ class SalaryMLPipeline:
                     "min_salary": 0,
                     "max_salary": 0,
                     "confidence_score": 0,
-                    "market_position": "No Jobs Available",
-                    "contributions": {}
+                    "percentile_breakdown": {"p25": 0, "p50": 0, "p75": 0, "p90": 0}
                 }
 
-        base_mid = ROLE_BASE_SALARIES.get(job_role, 70000)
+        # Base salary evaluation
+        base = ROLE_BASE_SALARIES.get(job_role, 72000)
 
-        # Experience Curve Multiplier (0 Yrs = ~0.42x of mid-level base)
-        if years_experience <= 0.0:
-            exp_mult = 0.42
-        elif years_experience <= 1.0:
-            exp_mult = 0.52 + (years_experience * 0.10)
-        elif years_experience <= 3.0:
-            exp_mult = 0.65 + ((years_experience - 1.0) * 0.15)
-        elif years_experience <= 6.0:
-            exp_mult = 0.95 + ((years_experience - 3.0) * 0.15)
-        elif years_experience <= 10.0:
-            exp_mult = 1.40 + ((years_experience - 6.0) * 0.12)
-        else:
-            exp_mult = 1.88 + ((years_experience - 10.0) * 0.08)
-
-        loc_mult = 0.90
-        for loc_key, val in LOCATION_MULTIPLIERS.items():
-            if location.lower() in loc_key.lower() or loc_key.lower() in location.lower():
-                loc_mult = val
-                break
-
-        edu_mult = EDUCATION_MULTIPLIERS.get(education, 1.00)
-
-        recognized_skills = [s for s in skills if s in SKILL_VALUATIONS]
-        skill_sum = sum(SKILL_VALUATIONS[s] for s in recognized_skills)
-
-        remote_mult = 1.03 if work_preference == "Remote" else 1.00
-
-        role_exp_base = base_mid * exp_mult * edu_mult
-        predicted = (role_exp_base + skill_sum) * loc_mult * remote_mult
-        predicted = max(2500, round(predicted / 100) * 100)
-
-        min_salary = round(predicted * 0.85 / 100) * 100
-        max_salary = round(predicted * 1.18 / 100) * 100
-
-        skill_coverage = len(recognized_skills) / max(1, len(skills)) if skills else 0.5
-        confidence = int(round(78 + (skill_coverage * 16)))
-        confidence = min(98, max(65, confidence))
-
+        # Experience scaling: Freshers (0 Yrs) = ~0.45x, 3 Yrs = ~0.85x, 5 Yrs = ~1.10x
         if years_experience == 0:
-            position = "Entry Level / Fresher Market"
-        elif years_experience <= 3:
-            position = "Junior / Associate Market"
-        elif years_experience <= 7:
-            position = "Mid-Senior Market"
+            exp_multiplier = 0.45
+        elif years_experience <= 2:
+            exp_multiplier = 0.45 + (years_experience * 0.15)
         else:
-            position = "Senior / Staff Leadership"
+            exp_multiplier = 0.75 + (min(years_experience, 15) * 0.08)
 
-        explanation = (
-            f"Your predicted real-time compensation of ${predicted:,.0f} reflects verified market data "
-            f"for a {job_role} profile in {location} with {years_experience:.1f} years of experience. "
-            f"Adding complementary core skills can boost your valuation by 12% to 22%."
-        )
+        loc_multiplier = LOCATION_MULTIPLIERS.get(location, 1.00)
+        edu_multiplier = EDUCATION_MULTIPLIERS.get(education, 1.00)
 
-        total_value = role_exp_base + skill_sum
-        exp_pct = round((role_exp_base / max(1, total_value)) * 100, 1)
-        skills_pct = round((skill_sum / max(1, total_value)) * 100, 1)
+        # Skill valuations addition
+        skill_boost = 0
+        for sk in skills:
+            skill_boost += SKILL_VALUATIONS.get(sk, 3000)
+
+        raw_prediction = (base * exp_multiplier * loc_multiplier * edu_multiplier) + (skill_boost * loc_multiplier * 0.5)
+
+        predicted_salary = round(max(15000, raw_prediction) / 500) * 500
+        min_salary = round(predicted_salary * 0.82 / 500) * 500
+        max_salary = round(predicted_salary * 1.25 / 500) * 500
+
+        p25 = round(predicted_salary * 0.88 / 500) * 500
+        p50 = predicted_salary
+        p75 = round(predicted_salary * 1.15 / 500) * 500
+        p90 = round(predicted_salary * 1.30 / 500) * 500
 
         return {
             "is_valid": True,
-            "status": "success",
-            "predicted_salary": predicted,
+            "status": "valid",
+            "job_role": job_role,
+            "years_experience": years_experience,
+            "location": location,
+            "skills": skills,
+            "predicted_salary": predicted_salary,
             "min_salary": min_salary,
             "max_salary": max_salary,
-            "confidence_score": confidence,
-            "market_position": position,
-            "explanation": explanation,
-            "contributions": {
-                "experience_impact": f"+{exp_pct}%",
-                "skills_impact": f"+{skills_pct}%",
-                "location_impact": f"+{round((loc_mult - 1.0) * 100, 1)}%",
-                "market_demand_impact": "+8.0%",
-                "education_impact": f"+{round((edu_mult - 1.0) * 100, 1)}%"
+            "confidence_score": 92.5,
+            "percentile_breakdown": {
+                "p25": p25,
+                "p50": p50,
+                "p75": p75,
+                "p90": p90
             },
-            "disclaimer": "These values represent statistical market estimations derived from empirical salary data."
+            "explanation": f"Evaluation calculated for {job_role} ({years_experience} Yrs Exp) in {location} with skills [{', '.join(skills)}]."
+        }
+
+    def get_degree_career_advice(self, degree: str, user_query: str = "") -> Dict[str, Any]:
+        degree_lower = degree.lower()
+        
+        if "bca" in degree_lower or "mca" in degree_lower or "bsc" in degree_lower:
+            roles = [
+                {"role": "Web Developer (BCA/BSc)", "avg_salary": "$58,000 / ₹4.80 LPA", "demand": "High Demand", "skills": ["HTML/CSS", "JavaScript", "React", "SQL / PostgreSQL"]},
+                {"role": "Software Engineer", "avg_salary": "$78,000 / ₹6.50 LPA", "demand": "High Demand", "skills": ["Python", "Java", "Data Structures", "SQL / PostgreSQL"]},
+                {"role": "Data Analyst", "avg_salary": "$65,000 / ₹5.40 LPA", "demand": "Critical Demand", "skills": ["SQL / PostgreSQL", "Python", "PowerBI / Tableau", "Excel Advanced"]}
+            ]
+            advice = "BCA / BSc IT graduates are highly suitable for Web Development, Data Analytics, and Software Engineering. Master SQL, Python, and React to land top starting offers."
+        elif "mechanical" in degree_lower or "civil" in degree_lower or "ece" in degree_lower or "eee" in degree_lower:
+            roles = [
+                {"role": "Embedded Systems Engineer (ECE)", "avg_salary": "$76,000 / ₹6.20 LPA", "demand": "High Demand", "skills": ["Embedded C / C++", "Microcontrollers", "Verilog / VHDL"]},
+                {"role": "Mechanical Design Engineer (CAD/CAM)", "avg_salary": "$66,000 / ₹5.20 LPA", "demand": "High Demand", "skills": ["AutoCAD / SolidWorks", "ANSYS Simulation"]},
+                {"role": "Civil Site Engineer / Structural", "avg_salary": "$58,000 / ₹4.50 LPA", "demand": "Steady Hiring", "skills": ["AutoCAD / SolidWorks", "STAAD Pro / ETABS Structural Analysis"]}
+            ]
+            advice = "Core B.Tech graduates in ECE, Mechanical, and Civil fields have strong demand in Embedded Systems, Robotics CAD, and BIM Structural Analysis."
+        else:
+            roles = [
+                {"role": "Software Engineer", "avg_salary": "$78,000 / ₹6.50 LPA", "demand": "High Demand", "skills": ["Python", "Java", "Data Structures", "System Design"]},
+                {"role": "Data Analyst", "avg_salary": "$65,000 / ₹5.40 LPA", "demand": "High Demand", "skills": ["SQL / PostgreSQL", "Python", "PowerBI / Tableau"]},
+                {"role": "Financial Analyst", "avg_salary": "$70,000 / ₹5.80 LPA", "demand": "Steady Hiring", "skills": ["Financial Modeling & Valuation", "PowerBI / Tableau", "Excel Advanced"]}
+            ]
+            advice = "Target high-growth career tracks by combining domain knowledge with technical skills like Python, SQL, and Data Analytics."
+
+        return {
+            "degree": degree,
+            "query": user_query,
+            "advice_summary": advice,
+            "target_roles": roles
         }
 
 ml_pipeline = SalaryMLPipeline()
