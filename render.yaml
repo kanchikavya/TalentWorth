@@ -16,7 +16,6 @@ services:
   - type: web
     name: talent-worth-frontend
     env: static
-    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
