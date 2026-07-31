@@ -145,6 +145,12 @@ LOCATION_MULTIPLIERS = {
     "Remote (Asia Rates)": 0.60
 }
 
+WORK_SETUP_MULTIPLIERS = {
+    "Remote": 1.12,    # Global Remote roles pay a premium (+12%)
+    "Hybrid": 1.00,    # Baseline 1.00x
+    "On-site": 0.92    # On-site base regional rate (-8%)
+}
+
 SKILL_VALUATIONS = {
     # High-Demand AI/ML & Data
     "Generative AI": 18000,
@@ -263,32 +269,36 @@ class SalaryMLPipeline:
         # Base salary evaluation
         base = ROLE_BASE_SALARIES.get(job_role, 72000)
 
-        # Experience scaling: Freshers (0 Yrs) = ~0.45x, 3 Yrs = ~0.85x, 5 Yrs = ~1.10x
+        # Experience scaling calibrated for freshers (0 Yrs = ~0.14x for realistic ₹20k - ₹45k / mo in Hyderabad/India)
         if years_experience == 0:
-            exp_multiplier = 0.45
-        elif years_experience <= 2:
-            exp_multiplier = 0.45 + (years_experience * 0.15)
+            exp_multiplier = 0.14
+        elif years_experience <= 1:
+            exp_multiplier = 0.14 + (years_experience * 0.12)
+        elif years_experience <= 3:
+            exp_multiplier = 0.26 + ((years_experience - 1) * 0.15)
         else:
-            exp_multiplier = 0.75 + (min(years_experience, 15) * 0.08)
+            exp_multiplier = 0.56 + (min(years_experience, 15) * 0.08)
 
         loc_multiplier = LOCATION_MULTIPLIERS.get(location, 1.00)
         edu_multiplier = EDUCATION_MULTIPLIERS.get(education, 1.00)
+        work_multiplier = WORK_SETUP_MULTIPLIERS.get(work_preference, 1.00)
 
-        # Skill valuations addition
+        # Skill valuations addition (scaled down for freshers to match realistic ₹20k - ₹45k/mo baseline)
         skill_boost = 0
+        skill_scale = 0.15 if years_experience == 0 else 0.40
         for sk in skills:
             skill_boost += SKILL_VALUATIONS.get(sk, 3000)
 
-        raw_prediction = (base * exp_multiplier * loc_multiplier * edu_multiplier) + (skill_boost * loc_multiplier * 0.5)
+        raw_prediction = (base * exp_multiplier * loc_multiplier * edu_multiplier * work_multiplier) + (skill_boost * loc_multiplier * skill_scale)
 
-        predicted_salary = round(max(15000, raw_prediction) / 500) * 500
-        min_salary = round(predicted_salary * 0.82 / 500) * 500
-        max_salary = round(predicted_salary * 1.25 / 500) * 500
+        predicted_salary = round(max(3000, raw_prediction) / 250) * 250
+        min_salary = round(predicted_salary * 0.82 / 250) * 250
+        max_salary = round(predicted_salary * 1.25 / 250) * 250
 
-        p25 = round(predicted_salary * 0.88 / 500) * 500
+        p25 = round(predicted_salary * 0.88 / 250) * 250
         p50 = predicted_salary
-        p75 = round(predicted_salary * 1.15 / 500) * 500
-        p90 = round(predicted_salary * 1.30 / 500) * 500
+        p75 = round(predicted_salary * 1.15 / 250) * 250
+        p90 = round(predicted_salary * 1.30 / 250) * 250
 
         return {
             "is_valid": True,
@@ -297,6 +307,7 @@ class SalaryMLPipeline:
             "years_experience": years_experience,
             "location": location,
             "skills": skills,
+            "work_preference": work_preference,
             "predicted_salary": predicted_salary,
             "min_salary": min_salary,
             "max_salary": max_salary,
@@ -307,7 +318,10 @@ class SalaryMLPipeline:
                 "p75": p75,
                 "p90": p90
             },
-            "explanation": f"Evaluation calculated for {job_role} ({years_experience} Yrs Exp) in {location} with skills [{', '.join(skills)}]."
+            "explanation": (
+                f"Evaluation for {job_role} ({years_experience} Yrs Exp) in {location} [{work_preference} Setup]. "
+                f"Work setup multiplier: {work_multiplier}x. Includes skills [{', '.join(skills)}]."
+            )
         }
 
     def get_degree_career_advice(self, degree: str, user_query: str = "") -> Dict[str, Any]:
@@ -315,23 +329,23 @@ class SalaryMLPipeline:
         
         if "bca" in degree_lower or "mca" in degree_lower or "bsc" in degree_lower:
             roles = [
-                {"role": "Web Developer (BCA/BSc)", "avg_salary": "$58,000 / ₹4.80 LPA", "demand": "High Demand", "skills": ["HTML/CSS", "JavaScript", "React", "SQL / PostgreSQL"]},
-                {"role": "Software Engineer", "avg_salary": "$78,000 / ₹6.50 LPA", "demand": "High Demand", "skills": ["Python", "Java", "Data Structures", "SQL / PostgreSQL"]},
-                {"role": "Data Analyst", "avg_salary": "$65,000 / ₹5.40 LPA", "demand": "Critical Demand", "skills": ["SQL / PostgreSQL", "Python", "PowerBI / Tableau", "Excel Advanced"]}
+                {"role": "Web Developer (BCA/BSc)", "avg_salary": "$58,000 / ₹3.20 LPA (₹25k - ₹40k / mo)", "demand": "High Demand", "skills": ["HTML/CSS", "JavaScript", "React", "SQL / PostgreSQL"]},
+                {"role": "Frontend Developer", "avg_salary": "$72,000 / ₹4.20 LPA (₹30k - ₹45k / mo)", "demand": "High Demand", "skills": ["React", "TypeScript", "JavaScript", "HTML/CSS"]},
+                {"role": "Data Analyst", "avg_salary": "$65,000 / ₹3.80 LPA (₹28k - ₹42k / mo)", "demand": "Critical Demand", "skills": ["SQL / PostgreSQL", "Python", "PowerBI / Tableau", "Excel Advanced"]}
             ]
-            advice = "BCA / BSc IT graduates are highly suitable for Web Development, Data Analytics, and Software Engineering. Master SQL, Python, and React to land top starting offers."
+            advice = "BCA / BSc IT graduates in Indian cities like Hyderabad usually start between ₹20,000 to ₹45,000 per month (₹2.4 LPA to ₹5.4 LPA). Master React, SQL, and Python to get top entry-level packages."
         elif "mechanical" in degree_lower or "civil" in degree_lower or "ece" in degree_lower or "eee" in degree_lower:
             roles = [
-                {"role": "Embedded Systems Engineer (ECE)", "avg_salary": "$76,000 / ₹6.20 LPA", "demand": "High Demand", "skills": ["Embedded C / C++", "Microcontrollers", "Verilog / VHDL"]},
-                {"role": "Mechanical Design Engineer (CAD/CAM)", "avg_salary": "$66,000 / ₹5.20 LPA", "demand": "High Demand", "skills": ["AutoCAD / SolidWorks", "ANSYS Simulation"]},
-                {"role": "Civil Site Engineer / Structural", "avg_salary": "$58,000 / ₹4.50 LPA", "demand": "Steady Hiring", "skills": ["AutoCAD / SolidWorks", "STAAD Pro / ETABS Structural Analysis"]}
+                {"role": "Embedded Systems Engineer (ECE)", "avg_salary": "$76,000 / ₹4.50 LPA (₹32k - ₹45k / mo)", "demand": "High Demand", "skills": ["Embedded C / C++", "Microcontrollers", "Verilog / VHDL"]},
+                {"role": "Mechanical Design Engineer (CAD/CAM)", "avg_salary": "$66,000 / ₹3.50 LPA (₹22k - ₹38k / mo)", "demand": "High Demand", "skills": ["AutoCAD / SolidWorks", "ANSYS Simulation"]},
+                {"role": "Civil Site Engineer / Structural", "avg_salary": "$58,000 / ₹3.00 LPA (₹20k - ₹35k / mo)", "demand": "Steady Hiring", "skills": ["AutoCAD / SolidWorks", "STAAD Pro / ETABS Structural Analysis"]}
             ]
-            advice = "Core B.Tech graduates in ECE, Mechanical, and Civil fields have strong demand in Embedded Systems, Robotics CAD, and BIM Structural Analysis."
+            advice = "Core B.Tech graduates in ECE, Mechanical, and Civil fields in India start between ₹20,000 to ₹40,000 per month (₹2.4 LPA - ₹4.8 LPA). Master AutoCAD, STAAD Pro, or Embedded C for higher entry packages."
         else:
             roles = [
-                {"role": "Software Engineer", "avg_salary": "$78,000 / ₹6.50 LPA", "demand": "High Demand", "skills": ["Python", "Java", "Data Structures", "System Design"]},
-                {"role": "Data Analyst", "avg_salary": "$65,000 / ₹5.40 LPA", "demand": "High Demand", "skills": ["SQL / PostgreSQL", "Python", "PowerBI / Tableau"]},
-                {"role": "Financial Analyst", "avg_salary": "$70,000 / ₹5.80 LPA", "demand": "Steady Hiring", "skills": ["Financial Modeling & Valuation", "PowerBI / Tableau", "Excel Advanced"]}
+                {"role": "Software Engineer", "avg_salary": "$78,000 / ₹4.80 LPA (₹35k - ₹50k / mo)", "demand": "High Demand", "skills": ["Python", "Java", "Data Structures", "System Design"]},
+                {"role": "Data Analyst", "avg_salary": "$65,000 / ₹3.80 LPA (₹28k - ₹42k / mo)", "demand": "High Demand", "skills": ["SQL / PostgreSQL", "Python", "PowerBI / Tableau"]},
+                {"role": "Financial Analyst", "avg_salary": "$70,000 / ₹4.00 LPA (₹30k - ₹45k / mo)", "demand": "Steady Hiring", "skills": ["Financial Modeling & Valuation", "PowerBI / Tableau", "Excel Advanced"]}
             ]
             advice = "Target high-growth career tracks by combining domain knowledge with technical skills like Python, SQL, and Data Analytics."
 
